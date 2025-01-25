@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>System Stats Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat span {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .stat small {
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>System Stats</h1>
+
+    <div class="section" id="cpu-section">
+        <h2>CPU</h2>
+        <div class="stats">
+            <div class="stat">
+                <span id="cpu-model">-</span>
+                <small>Model</small>
+            </div>
+            <div class="stat">
+                <span id="cpu-cores">-</span>
+                <small>Cores</small>
+            </div>
+            <div class="stat">
+                <span id="cpu-threads">-</span>
+                <small>Threads</small>
+            </div>
+            <div class="stat">
+                <span id="cpu-used">-</span>
+                <small>Used (%)</small>
+            </div>
+            <div class="stat">
+                <span id="cpu-temp">-</span>
+                <small>Temperature (°C)</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="ram-section">
+        <h2>RAM</h2>
+        <div class="stats">
+            <div class="stat">
+                <span id="ram-total">-</span>
+                <small>Total (GB)</small>
+            </div>
+            <div class="stat">
+                <span id="ram-used">-</span>
+                <small>Used (GB)</small>
+            </div>
+            <div class="stat">
+                <span id="ram-used-percent">-</span>
+                <small>Used (%)</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="disk-section">
+        <h2>Disk</h2>
+        <div class="stats">
+            <div class="stat">
+                <span id="disk-total">-</span>
+                <small>Total (GB)</small>
+            </div>
+            <div class="stat">
+                <span id="disk-used">-</span>
+                <small>Used (GB)</small>
+            </div>
+            <div class="stat">
+                <span id="disk-used-percent">-</span>
+                <small>Used (%)</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="section" id="network-section">
+        <h2>Network</h2>
+        <div class="stats">
+            <div class="stat">
+                <span id="network-upload">-</span>
+                <small>Upload (KB/s)</small>
+            </div>
+            <div class="stat">
+                <span id="network-download">-</span>
+                <small>Download (KB/s)</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const updateStats = (data) => {
+        document.getElementById('cpu-model').textContent = data.cpu.model;
+        document.getElementById('cpu-cores').textContent = data.cpu.cores;
+        document.getElementById('cpu-threads').textContent = data.cpu.threads;
+        document.getElementById('cpu-used').textContent = data.cpu.usedPercent.toFixed(2);
+        document.getElementById('cpu-temp').textContent = data.cpu.temperature;
+
+        document.getElementById('ram-total').textContent = data.ram.totalAvailableGB.toFixed(2);
+        document.getElementById('ram-used').textContent = data.ram.usedGB.toFixed(2);
+        document.getElementById('ram-used-percent').textContent = data.ram.usedPercent.toFixed(2);
+
+        document.getElementById('disk-total').textContent = data.disk.totalAvailableGB.toFixed(2);
+        document.getElementById('disk-used').textContent = data.disk.usedGB.toFixed(2);
+        document.getElementById('disk-used-percent').textContent = data.disk.usedPercent.toFixed(2);
+
+        document.getElementById('network-upload').textContent = data.network.uploadKBs.toFixed(2);
+        document.getElementById('network-download').textContent = data.network.downloadKBs.toFixed(2);
+    };
+
+    const eventSource = new EventSource('http://localhost:8080/stats');
+    eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        updateStats(data);
+    };
+
+    eventSource.onerror = () => {
+        console.error('Failed to connect to the server.');
+    };
+</script>
+</body>
+</html>
